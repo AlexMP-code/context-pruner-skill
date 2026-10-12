@@ -129,10 +129,12 @@ export const ContextPrunerPlugin: Plugin = async ({ client, directory }) => {
           return null
         })
 
-        if (session) {
+        const sessionId = session?.data?.id
+
+        if (sessionId) {
           try {
             const result = (await client.session.prompt({
-              path: { id: session.data.id },
+              path: { id: sessionId },
               body: {
                 noReply: false,
                 parts: [
@@ -179,7 +181,7 @@ export const ContextPrunerPlugin: Plugin = async ({ client, directory }) => {
           } catch (err) {
             await log(client, "error", `prune threw, injecting unpruned state: ${String(err)}`)
           } finally {
-            await client.session.delete({ path: { id: session.data.id } }).catch(() => {})
+            await client.session.delete({ path: { id: sessionId } }).catch(() => {})
           }
         }
       }

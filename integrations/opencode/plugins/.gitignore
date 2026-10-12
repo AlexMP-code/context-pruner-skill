@@ -1,0 +1,4 @@
+# Dependencies — only needed for type checking the plugin in an editor.
+# OpenCode loads the plugin at runtime without any of these.
+node_modules/
+package-lock.json

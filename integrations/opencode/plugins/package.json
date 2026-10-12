@@ -1,0 +1,12 @@
+{
+  "name": "context-pruner-plugin",
+  "version": "1.0.0",
+  "private": true,
+  "description": "OpenCode compaction hook that prunes .agent/state.md and preserves it across context compaction.",
+  "license": "MIT",
+  "devDependencies": {
+    "@opencode-ai/plugin": "latest",
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2"
+  }
+}
