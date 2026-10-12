@@ -153,10 +153,25 @@ export const ContextPrunerPlugin: Plugin = async ({ client, directory }) => {
               )
             } else {
               const rewritten = readFileSync(statePath, "utf8").trim()
+
+              // Compare the Goal by value, not by header name — an LLM may
+              // rename headers, but changing the goal itself is the one failure
+              // that loses the thread of the task. The pattern tolerates both
+              // `- **Goal:** x` and `- Goal: x`.
+              const GOAL_RE = /^\s*-\s*\**\s*Goal\s*:\s*\**\s*(.+)$/im
+              const goalBefore = before.match(GOAL_RE)?.[1]?.trim()
+              const goalAfter = rewritten.match(GOAL_RE)?.[1]?.trim()
+
+              const hasCoreHeader = /^##\s+Active Context/im.test(rewritten)
+
               if (!rewritten) {
-                await log(client, "warn", "prune emptied the file, keeping the original")
-              } else if (!/^##\s+Active Context/im.test(rewritten)) {
-                await log(client, "warn", "prune dropped the Active Context section, keeping the original")
+                await log(client, "warn", "prune emptied the file, keeping original")
+              } else if (!hasCoreHeader) {
+                await log(client, "warn", "prune dropped Active Context section, keeping original")
+              } else if (goalBefore && (!goalAfter || goalBefore !== goalAfter)) {
+                await log(client, "warn", "prune modified or dropped the Active Goal, keeping original")
+              } else if (rewritten.length > Math.max(before.length + 200, before.length * 1.25)) {
+                await log(client, "warn", "prune abnormally increased file size, keeping original")
               } else {
                 state = rewritten
               }
