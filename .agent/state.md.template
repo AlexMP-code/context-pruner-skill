@@ -7,6 +7,10 @@
 ## Pending Tasks
 - [ ] [Phase / Remaining Task 1]
 
+## Completed This Session
+<!-- session:replaced-by-current-compaction -->
+- [x] [Finished work — tagged to the current session, cleared when the tag changes]
+
 ## Active Errors / Roadblocks (NEVER DROP)
 - [Description of currently active failing test or blocking error]
 

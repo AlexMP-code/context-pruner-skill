@@ -12,6 +12,7 @@ Two problems compound in long sessions. Agents forget where state lives after co
 - **Single-File Anchor:** No fragmented state files. Everything stays in one predictable location.
 - **Heartbeat Cadence:** Updates on task start, after milestones, and pre-compact to prevent stale state.
 - **Fallback Degradation Ladder:** Deterministic section-dropping priority when state reaches capacity.
+- **Completion Records:** Finished work moves to `## Completed This Session`, so the agent knows not to redo it after compaction.
 - **Compaction Hook:** A plugin that prunes the state file and injects it into every compaction — manual or automatic.
 
 ## Quick Start

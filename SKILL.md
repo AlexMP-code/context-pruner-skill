@@ -16,10 +16,10 @@ Maintain a lean, single-file state anchor (`.agent/state.md`) to survive context
 
 Prompt and update `.agent/state.md` at three verifiable events:
 
-1. **Cold-Start (Task Initialization):** On starting any task involving >= 2 files or multi-step execution, immediately populate `Goal` and `Focus File(s)`. Never leave placeholder text.
+1. **Cold-Start (Task Initialization):** On starting any task involving >= 2 files or multi-step execution, create `.agent/state.md` from the template if it does not exist, then populate `Goal` and `Focus File(s)`. Never leave placeholder text — an unpopulated template is the same as no anchor at all.
 2. **Post-Milestone (Observable Events):** Rewrite state immediately when:
    - The user issues a new instruction that redefines the primary task.
-   - A pending checklist item (`[ ]`) is completed (`[x]`).
+   - A pending checklist item (`[ ]`) is completed — move it to `Completed This Session`.
    - A previously failing test passes or a blocking error is resolved.
    - A public interface or schema is modified.
 3. **Pre-Compact / Module Switch:** Execute compaction logic before invoking `/compact` or switching module contexts.
@@ -41,7 +41,8 @@ Each section has its own budget. Breaking one signals a specific problem, so che
 |---|---|---|
 | Active Context | 5 | The goal is written too long |
 | Active Errors / Roadblocks | 20 | ~10 errors at one line each; more means resolved errors were not removed |
-| Pending Tasks | 40 | ~20 tasks at phase-title length; more means completed items were not deleted |
+| Pending Tasks | 40 | ~20 tasks at phase-title length; more means completed items were not moved out |
+| Completed This Session | 10 | Session-scoped and stamped — more means stale entries from an older session were not cleared |
 | Architecture Snapshot | 0 | Always a mistake — durable decisions get moved to `## Needs Relocation` by Step E |
 | Needs Relocation | 20 | ~10 parked decisions; more means they are never being moved out by hand |
 
@@ -49,7 +50,8 @@ Each section has its own budget. Breaking one signals a specific problem, so che
 
 Execute pruning in this **strict order of priority**:
 
-- **Step A:** Delete completed checklist items (`[x]`) and resolved bugs.
+- **Step 0 — Clear the stale completion log.** `## Completed This Session` is stamped with the current session's compaction tag. Any section bearing a *different* tag belongs to a session that has already ended — delete it. Finished work from a previous session must never be carried forward; git history is the record for that, not this file.
+- **Step A:** Move completed checklist items (`[x]`) from `Pending Tasks` into `## Completed This Session`, stamped with the current session tag. Never delete them outright — a deleted `[x]` is a deleted record that the work was done, and the agent will redo it after compaction.
 - **Step B:** Drop context notes and code snippets from dormant/inactive modules.
 - **Step C:** Compress inactive stack traces into single-line error summaries.
 - **Step D:** Truncate pending task descriptions to phase-level titles only.
@@ -64,7 +66,7 @@ Execute pruning in this **strict order of priority**:
 
 ## Examples
 
-### BAD: Bloated State Example (Over 150 lines, rotting completed logs, durable decisions in the wrong file)
+### BAD: Bloated State Example (Over 150 lines, cross-session completed log, durable decisions in the wrong file)
 
 ```markdown
 # Current Agent State
@@ -77,7 +79,7 @@ Execute pruning in this **strict order of priority**:
 - Store refresh tokens in Redis
 - Role-based access control with Spatie
 
-## Completed Tasks (ROTTING LOGS - SHOULD BE DELETED)
+## Completed Tasks (ROTTING LOGS - UNSTAMPED, CARRIES ACROSS SESSIONS)
 - [x] Installed JWT package
 - [x] Generated RSA keys
 - [x] Updated User model with JWTSubject
@@ -109,6 +111,10 @@ Durable decisions (JWT RS256, Redis refresh tokens, Spatie RBAC) are not in an a
 ## Pending Tasks
 - [ ] Implement RefreshTokenRepository
 - [ ] Add unit tests for expired token handler
+
+## Completed This Session
+<!-- session:2026-10-12T09:00:00Z -->
+- [x] Issue token endpoint
 
 ## Active Errors / Roadblocks (NEVER DROP)
 - `TokenExpiredException` on `AuthService.php:42` during token refresh handling.
