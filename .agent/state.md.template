@@ -1,0 +1,14 @@
+# Current Agent State
+
+## Active Context
+- **Goal:** [Fill immediately upon starting task]
+- **Focus File(s):** `[path/to/active/file.ext]`
+
+## Pending Tasks
+- [ ] [Phase / Remaining Task 1]
+
+## Active Errors / Roadblocks (NEVER DROP)
+- [Description of currently active failing test or blocking error]
+
+## Needs Relocation
+- [Durable decision that leaked in — move to AGENTS.md by hand, or delete if obsolete]
